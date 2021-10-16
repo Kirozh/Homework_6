@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Homework_6</string>
+    <string name="avatar">avatar</string>
+    <string name="contact_title">Контакт</string>
+    <string name="update_btn">update</string>
+    <string name="menu_edit">edit</string>
+    <string name="edit">edit</string>
+    <string name="search">search</string>
+    <string name="clear_search">clear_search</string>
+</resources>

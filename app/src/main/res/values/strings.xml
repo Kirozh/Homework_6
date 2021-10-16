@@ -7,4 +7,5 @@
     <string name="edit">edit</string>
     <string name="search">search</string>
     <string name="clear_search">clear_search</string>
+    <string name="image_description">image_description</string>
 </resources>

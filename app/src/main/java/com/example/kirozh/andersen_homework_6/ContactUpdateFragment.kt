@@ -33,7 +33,7 @@ class ContactUpdateFragment : Fragment(R.layout.fragment_contact_update) {
     private var updateCallBacks: UpdateCallBacks? = null
 
     private var contactId: Int = 0
-    var contacts = ContactList.contacts
+    private var contacts = ContactList.contacts
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -98,6 +98,8 @@ class ContactUpdateFragment : Fragment(R.layout.fragment_contact_update) {
         picassoBuilder
             ?.build()
             ?.load(uri)
+            ?.resize(400, 400)
+            ?.centerCrop()
             ?.into(iv, object : Callback {
                 override fun onSuccess() {
                 }

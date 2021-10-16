@@ -25,7 +25,8 @@
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/update_toolbar"
-        tools:text="name" />
+        tools:text="name"
+        android:autofillHints="name" />
 
     <EditText
         android:id="@+id/surnameEditText"
@@ -41,7 +42,8 @@
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/nameEditText"
-        tools:text="surnname" />
+        tools:text="surnname"
+        android:autofillHints="surname" />
 
     <EditText
         android:id="@+id/numberEditText"
@@ -56,7 +58,8 @@
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/surnameEditText"
-        tools:text="number" />
+        tools:text="number"
+        android:autofillHints="number" />
 
     <Button
         android:id="@+id/update_btn"
@@ -71,11 +74,12 @@
 
     <ImageView
         android:id="@+id/fragment_update_image_view"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/update_toolbar"
-        tools:srcCompat="@tools:sample/avatars" />
+        tools:srcCompat="@tools:sample/avatars"
+        android:contentDescription="@string/image_description" />
 </androidx.constraintlayout.widget.ConstraintLayout>

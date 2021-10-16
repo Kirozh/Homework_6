@@ -1,6 +1,7 @@
 package com.example.kirozh.andersen_homework_6
 
 import android.annotation.SuppressLint
+import android.content.ClipData
 import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,6 +11,9 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
@@ -39,16 +43,19 @@ class ContactAdapter(private val onClick: (Contact, Int) -> Unit) :
 
     @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: ContactHolder, position: Int) {
-        //contactFilterList = ContactList.contacts
         val contact: Contact = contactFilterList[position]
-        Log.d("position", position.toString())
         holder.bind(contact)
-
-        holder.itemView.setOnClickListener { onClick(contact, contact.contactId) }
+        holder.itemView.setOnClickListener { onClick(contact, position) }
     }
 
     override fun getItemCount(): Int = contactFilterList.size
 
+    fun setData(newContactList: MutableList<Contact>){
+        val diffUtil = ContactDiffUtilCallBacks(contactFilterList, newContactList)
+        val diffResults = DiffUtil.calculateDiff(diffUtil,true)
+        contactFilterList = newContactList
+        diffResults.dispatchUpdatesTo(this)
+    }
     fun removeItem(position: Int) {
         contactFilterList.removeAt(position)
         notifyDataSetChanged()
@@ -62,7 +69,7 @@ class ContactAdapter(private val onClick: (Contact, Int) -> Unit) :
         private val phoneTV: TextView = itemView.findViewById(R.id.phoneTextView)
         private val deleteIV: ImageView = itemView.findViewById(R.id.deleteImageView)
 
-        lateinit var contact: Contact
+        private lateinit var contact: Contact
 
         fun bind(contact: Contact) {
             this.contact = contact
@@ -91,9 +98,8 @@ class ContactAdapter(private val onClick: (Contact, Int) -> Unit) :
                     for (row in contacts) {
                         if (row.contactName.lowercase().contains(charSearch.lowercase()) ||
                             row.contactSurname.lowercase().contains(charSearch.lowercase())
-                        ) {
+                        )
                             resultList.add(row)
-                        }
                     }
                     resultList
                 }

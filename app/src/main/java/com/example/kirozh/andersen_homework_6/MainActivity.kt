@@ -8,16 +8,28 @@ class MainActivity : AppCompatActivity(),
     ContactUpdateFragment.UpdateCallBacks,
     ContactListFragment.CallBacks {
 
+    private var isPhoneConfig = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        createListFragment(R.id.fragment_container)
+
+        isPhoneConfig = resources.getBoolean(R.bool.isPhone)
+        if (isPhoneConfig)
+            createListFragment(R.id.fragment_container)
+        else {
+            createListFragment(R.id.left_fragment_container)
+            createDetailFragment(R.id.right_fragment_container, 0)
+        }
     }
 
     override fun onItemClickListener(id: Int) {
         supportFragmentManager.beginTransaction().run {
             val detailFragment = ContactDetailFragment.newInstance(id)
-            replace(R.id.fragment_container, detailFragment)
+            if (isPhoneConfig)
+                replace(R.id.fragment_container, detailFragment)
+            else
+                replace(R.id.right_fragment_container, detailFragment)
             addToBackStack("detail")
             commit()
         }
@@ -27,7 +39,10 @@ class MainActivity : AppCompatActivity(),
 
         supportFragmentManager.beginTransaction().run {
             val editFragment = ContactUpdateFragment.newInstance(id)
-            replace(R.id.fragment_container, editFragment)
+            if (isPhoneConfig)
+                replace(R.id.fragment_container, editFragment)
+            else
+                replace(R.id.right_fragment_container, editFragment)
             addToBackStack("update")
             commit()
         }
@@ -38,7 +53,12 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onUpdateContactClickListener(contact_id: Int) {
-        createListFragment(R.id.fragment_container)
+        if (isPhoneConfig) {
+            createListFragment(R.id.fragment_container)
+        } else {
+            createListFragment(R.id.left_fragment_container)
+            createDetailFragment(R.id.right_fragment_container, contact_id)
+        }
     }
 
     override fun onBackToDetailContactClickListener(contact_id: Int) {

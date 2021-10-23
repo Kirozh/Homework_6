@@ -10,7 +10,6 @@ class ContactDiffUtilCallBacks(
     private val newContactList: MutableList<Contact>
 ) : DiffUtil.Callback() {
 
-
     override fun getOldListSize(): Int {
         return oldContactList.size
     }
@@ -39,6 +38,5 @@ class ContactDiffUtilCallBacks(
             }
             else -> true
         }
-
     }
 }

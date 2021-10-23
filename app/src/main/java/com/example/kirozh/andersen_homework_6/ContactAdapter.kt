@@ -1,7 +1,6 @@
 package com.example.kirozh.andersen_homework_6
 
 import android.annotation.SuppressLint
-import android.content.ClipData
 import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,8 +10,6 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
@@ -21,15 +18,13 @@ import jp.wasabeef.picasso.transformations.CropCircleTransformation
 /**
  * @author Kirill Ozhigin on 16.10.2021
  */
-class ContactAdapter(private val onClick: (Contact, Int) -> Unit) :
+class ContactAdapter(clickListener: ItemClickListener) :
     RecyclerView.Adapter<ContactAdapter.ContactHolder>(), Filterable {
 
-    var contacts = ContactList.contacts
-    var contactFilterList = mutableListOf<Contact>()
+    var mItemClickListener: ItemClickListener = clickListener
 
-    init {
-        contactFilterList = contacts
-    }
+    var contactFilteredList = mutableListOf<Contact>()
+    var contacts = mutableListOf<Contact>()
 
     override fun onCreateViewHolder(
         parent: ViewGroup, viewType: Int
@@ -38,30 +33,29 @@ class ContactAdapter(private val onClick: (Contact, Int) -> Unit) :
             R.layout.item_view,
             parent,
             false
-        )
+        ), mItemClickListener
     )
 
     @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: ContactHolder, position: Int) {
-        val contact: Contact = contactFilterList[position]
-        holder.bind(contact)
-        holder.itemView.setOnClickListener { onClick(contact, position) }
+        Log.d("TAG", "bind, position = $position")
+        val contact: Contact = contactFilteredList[position]
+        holder.bind(contact, position)
+        holder.itemView.setOnClickListener { mItemClickListener.onItemClick(contact, position) }
     }
 
-    override fun getItemCount(): Int = contactFilterList.size
+    override fun getItemCount(): Int = contacts.size
 
-    fun setData(newContactList: MutableList<Contact>){
-        val diffUtil = ContactDiffUtilCallBacks(contactFilterList, newContactList)
-        val diffResults = DiffUtil.calculateDiff(diffUtil,true)
-        contactFilterList = newContactList
+    fun setData(newContactList: MutableList<Contact>) {
+        val diffUtil = ContactDiffUtilCallBacks(contactFilteredList, newContactList)
+        val diffResults = DiffUtil.calculateDiff(diffUtil, true)
+        contactFilteredList = newContactList
+        contacts = contactFilteredList
         diffResults.dispatchUpdatesTo(this)
     }
-    fun removeItem(position: Int) {
-        contactFilterList.removeAt(position)
-        notifyDataSetChanged()
-    }
 
-    inner class ContactHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ContactHolder(view: View, itemClickListener: ItemClickListener) :
+        RecyclerView.ViewHolder(view) {
 
         private val nameTV: TextView = itemView.findViewById(R.id.nameTextView)
         private val surnameTV: TextView = itemView.findViewById(R.id.surnameTextView)
@@ -71,16 +65,19 @@ class ContactAdapter(private val onClick: (Contact, Int) -> Unit) :
 
         private lateinit var contact: Contact
 
-        fun bind(contact: Contact) {
+        private var mItemClickListener: ItemClickListener = itemClickListener
+
+        fun bind(contact: Contact, pos: Int) {
             this.contact = contact
             nameTV.text = this.contact.contactName
             surnameTV.text = this.contact.contactSurname
             phoneTV.text = this.contact.contactPhone
+
             val uri = (Uri.parse(this.contact.contactImageURL))
             Picasso.get().load(uri).transform(CropCircleTransformation()).into(image)
 
             deleteIV.setOnClickListener {
-                removeItem(bindingAdapterPosition)
+                mItemClickListener.onDeleteClicked(pos)
             }
         }
     }
@@ -90,7 +87,7 @@ class ContactAdapter(private val onClick: (Contact, Int) -> Unit) :
             override fun performFiltering(constraint: CharSequence?): FilterResults {
 
                 val charSearch = constraint.toString()
-                contactFilterList = if (charSearch.isEmpty()) {
+                contactFilteredList = if (charSearch.isEmpty()) {
                     contacts
                 } else {
                     val resultList = mutableListOf<Contact>()
@@ -102,17 +99,24 @@ class ContactAdapter(private val onClick: (Contact, Int) -> Unit) :
                             resultList.add(row)
                     }
                     resultList
+
                 }
 
                 val filterResult = FilterResults()
-                filterResult.values = contactFilterList
+                filterResult.values = contactFilteredList
                 return filterResult
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                contactFilterList = results?.values as MutableList<Contact>
+                contactFilteredList = results?.values as MutableList<Contact>
                 notifyDataSetChanged()
             }
         }
+    }
+
+    interface ItemClickListener {
+        fun onDeleteClicked(position: Int)
+        fun onItemClick(contact: Contact, position: Int)
     }
 }

@@ -1,5 +1,6 @@
 package com.example.kirozh.andersen_homework_6
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
  * @author Kirill Ozhigin on 15.10.2021
  */
 
-class ContactListFragment : Fragment() {
+class ContactListFragment : Fragment(), ContactAdapter.ItemClickListener {
     private var contacts = ContactList.contacts
     private lateinit var recyclerView: RecyclerView
     private var adapter: ContactAdapter? = null
@@ -45,9 +46,11 @@ class ContactListFragment : Fragment() {
         recyclerView = view.findViewById(R.id.contact_recycler_view) as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        adapter = ContactAdapter { _, id -> callBacks?.onItemClickListener(id) }
-        adapter!!.setData(contacts)
+        adapter = ContactAdapter(this)
+
         recyclerView.adapter = adapter
+
+        adapter!!.setData(contacts)
 
         searchView = view.findViewById(R.id.search_view)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -59,7 +62,6 @@ class ContactListFragment : Fragment() {
                 adapter!!.filter.filter(newText)
                 return false
             }
-
         })
 
         val dividerItemDecoration = DividerItemDecoration(context, RecyclerView.VERTICAL)
@@ -81,6 +83,16 @@ class ContactListFragment : Fragment() {
         callBacks = null
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onDeleteClicked(position: Int) {
+        contacts.removeAt(position)
+        adapter?.notifyDataSetChanged()
+    }
+
+    override fun onItemClick(contact: Contact, position: Int) {
+        callBacks?.onItemClickListener(position)
+    }
+
     interface CallBacks {
         fun onItemClickListener(id: Int)
     }
@@ -90,5 +102,4 @@ class ContactListFragment : Fragment() {
             return ContactListFragment()
         }
     }
-
 }
